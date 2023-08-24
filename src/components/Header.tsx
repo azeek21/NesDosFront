@@ -7,15 +7,12 @@ import { useState } from "react";
 
 export default function Header() {
   const [search, setSearch] = useState("");
+  const route = useRouter();
+  const navHidden = route.pathname == "/login" || route.pathname == "/signup";
   return (
-    <header className="sticky top-0 flex items-center border-b border-b-yellow-100 px-4 py-2 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 flex items-center justify-between border-b border-b-yellow-100 px-4 py-2 backdrop-blur-sm">
       <Logo />
-      <Input
-        className="ml-auto"
-        placeholder="Search..."
-        value={search}
-        onChange={(v) => setSearch(v.target.value)}
-      />
+
       <Navigation />
     </header>
   );

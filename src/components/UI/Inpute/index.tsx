@@ -1,11 +1,14 @@
-import { InputHTMLAttributes, useId } from "react";
+import { InputHTMLAttributes, Ref, useId } from "react";
 
-interface IInput extends InputHTMLAttributes<HTMLInputElement> {}
+interface IInput extends InputHTMLAttributes<HTMLInputElement> {
+  inputRef?: Ref<HTMLInputElement>;
+}
 
 export default function Input({
   className,
   title,
   value,
+  inputRef,
   placeholder,
   ...rest
 }: IInput) {
@@ -16,19 +19,17 @@ export default function Input({
       htmlFor={id}
     >
       <input
+        ref={inputRef}
         id={id}
         value={value}
         placeholder={placeholder}
         {...rest}
-        className={
-          "rounded-lg border-2 border-gray-500 bg-transparent px-4 py-2 outline-none focus-within:border-white" +
-          ` ${className}`
-        }
+        className={` ${className} rounded-lg border-2 border-gray-500 bg-transparent outline-none focus-within:border-white`}
       />
       <span
-        className={`absolute left-4 ${
+        className={`absolute left-8 ${
           value || placeholder ? "top-0" : "top-1/2"
-        }  -translate-y-1/2 cursor-text rounded-xl px-1 backdrop-blur-3xl group-focus-within:left-2 group-focus-within:top-0`}
+        }  -translate-y-1/2 cursor-text rounded-xl px-1 backdrop-blur-3xl group-focus-within:left-6 group-focus-within:top-0`}
       >
         {title}
       </span>

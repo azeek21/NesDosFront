@@ -1,17 +1,16 @@
 import Button from "@/components/UI/Button";
 import Input from "@/components/UI/Inpute";
 import Link from "@/components/UI/Link";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
+import { logIn } from "@/lib/auth";
 
 export default function Login() {
   const [credentials, setCredentials] = useState({
     email: "",
     password: "",
   });
-  signIn();
 
   function handleChange(ev: ChangeEvent<HTMLInputElement>) {
     const name = ev.target.name;
@@ -25,9 +24,9 @@ export default function Login() {
 
   async function handleSubmit(ev: FormEvent) {
     ev.preventDefault();
-    const success = await signIn("credentials", credentials);
-
-    if (success) {
+    const res = await logIn(credentials);
+    console.log("SUCCESS LOGIN: ", res);
+    if (res) {
       router.replace("/");
     }
   }
@@ -47,6 +46,8 @@ export default function Login() {
           value={credentials.email}
           onChange={handleChange}
           autoComplete="email"
+          className="px-4 py-2"
+          required
         />
         <Input
           type="password"
@@ -56,6 +57,8 @@ export default function Login() {
           value={credentials.password}
           onChange={handleChange}
           autoComplete="password"
+          className="px-4 py-2"
+          required
         />
         <Button>Log In</Button>
         <span className="self-end">

@@ -4,7 +4,7 @@
 
 * {
   transition: 150ms ease-in-out;
-
+  scroll-behavior: smooth;
 }
 
 :root {
@@ -16,19 +16,28 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 10, 20, 20;
+    --background-start-rgb: 0, 0, 0;
     --background-end-rgb: 40, 40, 40;
   }
 }
 
 body {
   color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background: rgb(var(--background-start-rgb));
   background-repeat: no-repeat;
   min-height: 100vh;
+}
+
+/* HIDE SCROLLBAR */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scale-xs:hover {
+  transform: scale(101%);
 }

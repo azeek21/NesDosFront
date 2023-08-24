@@ -1,39 +1,61 @@
-async function logIn(credentials: { email: string; password: string }) {
-  const res = await (
-    await fetch(process.env.NEXT_PUBLIC_BASE_URL + "/login", {
-      method: "post",
-      body: JSON.stringify(credentials),
-    })
-  ).json();
-  if (!res || !res.success) {
-    return false;
-  }
-  return true;
+import axios from "axios";
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
 }
 
-async function signUp(credentials: {
+async function logIn(creds: {
+  password: string;
+  email: string;
+}): Promise<User | null> {
+  if (!creds.password || !creds.email) {
+    return null;
+  }
+  console.log("login posting: ", creds);
+  const res = await axios.post(
+    process.env.NEXT_PUBLIC_BASE_URL + "auth/login",
+    creds,
+    {
+      withCredentials: true,
+    },
+  );
+  if (res.data) {
+    return res.data;
+  }
+  return null;
+}
+
+async function signUp(creds: {
   name: string;
   email: string;
   password: string;
-}) {
-  const res = await (
-    await fetch(process.env.BASE_URL + "/signup", {
-      method: "post",
-      body: JSON.stringify(credentials),
-    })
-  ).json();
-
-  if (!res || !res.success) {
-    return false;
+}): Promise<User | null> {
+  if (!creds.email || !creds.name || !creds.password) {
+    return null;
   }
-  return true;
+  const res = await axios.post(
+    process.env.NEXT_PUBLIC_BASE_URL + "auth/signup",
+    creds,
+    {
+      withCredentials: true,
+    },
+  );
+  if (res.data) {
+    return res.data;
+  }
+  return null;
 }
 
-async function logOut() {
-  const res = await (
-    await fetch(process.env.BASE_URL + "/logout", {
-      method: "post",
-    })
-  ).json();
-  return true;
+async function logOut(): Promise<boolean> {
+  const resp = await axios.post(
+    process.env.NEXT_PUBLIC_BASE_URL + "auth/logout",
+  );
+  if (resp.data) {
+    return true;
+  }
+  return false;
 }
+
+export { logIn, logOut, signUp };

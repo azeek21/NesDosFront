@@ -1,15 +1,24 @@
+import Layout from "@/components/Layout";
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { SessionProvider } from "next-auth/react";
+import { QueryClientProvider, QueryClient } from "react-query";
+import { createContext } from "react";
+import globalStore from "@/store";
+import { GetServerSidePropsContext } from "next";
+import { getAllUserSettings, getUserSettingByKey } from "@/lib/fetchers";
 
-interface IAppProps extends AppProps {
-  session: any;
-}
+const StoreContext = createContext<any>(null);
 
-export default function App({ Component, pageProps, session }: IAppProps) {
+const queryClient = new QueryClient();
+
+export default function App({ Component, pageProps }: AppProps) {
   return (
-    <SessionProvider session={session}>
-      <Component {...pageProps} />
-    </SessionProvider>
+    <StoreContext.Provider value={globalStore}>
+      <QueryClientProvider client={queryClient}>
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      </QueryClientProvider>
+    </StoreContext.Provider>
   );
 }

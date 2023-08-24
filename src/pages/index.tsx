@@ -1,35 +1,33 @@
 import { Inter } from "next/font/google";
-import Header from "@/components/Header";
-import CreationForm from "@/components/CreationForm";
-
-const inter = Inter({ subsets: ["latin"] });
-
-export default function Home() {
-  return (
-    <main>
-      <Header />
-    </main>
-  );
+import { useQuery } from "react-query";
+import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
+import axios from "axios";
+import { getAllTodos, getAllUserSettings } from "@/lib/fetchers";
+import TodosList from "@/components/TodosList";
+import TodosListControls from "@/components/TodoListControls";
+import useGlobalStore from "@/store";
+import { useEffect } from "react";
+// const inter = Inter({ subsets: ["latin"] });
+interface IHome {
+  settings: any;
 }
-
-{
-  /* <List className="h-28 overflow-y-auto"></List> */
+export default function Home({ settings }: IHome) {
+  const [listStyle, setListStyle] = useGlobalStore((s) => [
+    s.listStyle,
+    s.setListStyle,
+  ]);
+  console.log("list:", listStyle);
+  useEffect(() => {
+    setListStyle(settings["value"]);
+  }, []);
+  return <h1>Home page</h1>;
 }
-
-{
-  /* <div className="flex max-w-xs flex-col">
-<ListItem type="card" className="flex flex-col gap-2">
-  <h1 className="flex border-b border-b-green-400 pb-1 text-xl">
-    This is title{" "}
-    <span className="ml-auto">
-      <input type="checkbox" name="" id="" checked />
-    </span>
-  </h1>
-  <p>This is content of this todo here right ?</p>
-  <div className="flex justify-end gap-4">
-    <Button className="border-green-400 text-green-400">Save</Button>
-    <Button className="border-red-400 text-red-400">Delete</Button>
-  </div>
-</ListItem>
-</div> */
+export async function getServerSideProps({ req }: GetServerSidePropsContext) {
+  const res = await getAllUserSettings(req.headers.cookie);
+  console.log("fetching: ", res);
+  return {
+    props: {
+      settings: res,
+    },
+  };
 }

@@ -1,38 +1,173 @@
-import { GetServerSideProps, NextPage } from "next";
+import Button from "@/components/UI/Button";
+import Input from "@/components/UI/Inpute";
+import { getTodoById, updateTodo } from "@/lib/fetchers";
+import { useDebouncer } from "@/lib/hooks";
+import { Save } from "@mui/icons-material";
+import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { useRouter } from "next/router";
-
-export default function TodoById() {
-  const router = useRouter();
-
-  return <h1>Todo by id </h1>;
+import { FormEvent, useState, ChangeEvent, useCallback, useRef } from "react";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+interface ITodoByIdProps {
+  initialTodo: Todo;
+  error?: string;
 }
 
-export const getServerSideProps: GetServerSideProps = async ({
-  res,
-  params,
-  req,
-}) => {
-  if (!params || !params.id) {
-    return {
-      notFound: true,
-    };
+export default function TodoById({ initialTodo, error }: ITodoByIdProps) {
+  const router = useRouter();
+  const autofocusRef = useRef<HTMLInputElement>();
+
+  const id = router.query.id;
+  const {
+    data,
+    isError,
+    isLoading,
+    error: errorMessage,
+  } = useQuery(
+    [`todo-${id}`],
+    async () => {
+      return getTodoById(66);
+    },
+    {
+      initialData: initialTodo,
+    },
+  );
+
+  if (!data) {
+    return (
+      <h1 className="text-red-500">
+        Something went terribly wrong and I have no idea
+      </h1>
+    );
   }
 
-  const id = Number(params.id);
+  const [todo, setTodo] = useState(data);
+  const {
+    mutate,
+    isLoading: mutationLoading,
+    isError: isMutationError,
+  } = useMutation({
+    mutationFn: async () => {
+      const res = await updateTodo(todo);
+      setTodo(res);
+    },
+    onSettled: () => {
+      setTimeout(() => {
+        autofocusRef.current?.focus();
+      }, 0);
+    },
+  });
 
+  async function handleSubmit(ev: FormEvent) {
+    ev.preventDefault();
+    mutate();
+  }
+  const debounce = useDebouncer(600, "updatetodo");
+
+  function handleChange(
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    const name = event.target.name;
+    let value: any = event.target.value;
+    if (event.target.type == "checkbox") {
+      // @ts-ignore
+      value = event.target.checked;
+    }
+    if (name) {
+      // @ts-ignore
+      autofocusRef.current = event.target;
+      setTodo((old) => ({ ...old, [name]: value }));
+      debounce(mutate, "updatetodo");
+    }
+  }
+
+  const isPending = isLoading || mutationLoading;
+  console.log("pending: ", isPending);
+  return (
+    <main className="mt-8 p-8 text-neutral-400" key={`todo-${todo.id}-main`}>
+      <form
+        key={`todo-${todo.id}-form`}
+        onSubmit={handleSubmit}
+        className={isPending ? "opacity-50" : ""}
+        style={{ viewTransitionName: `card-${todo.id}` }}
+      >
+        <Input
+          type="checkbox"
+          checked={todo.done}
+          name="done"
+          onChange={handleChange}
+        />
+        <Input
+          disabled={isPending}
+          type="text"
+          value={todo.title}
+          onChange={handleChange}
+          className="text-white"
+          name="title"
+        />
+        <textarea
+          disabled={isPending}
+          value={todo.content}
+          onChange={handleChange}
+          name="content"
+          className="no-scollbar mt-4 h-full w-full bg-transparent focus-within:text-white"
+        />
+        <Button
+          className="border-green-600 text-green-500"
+          disabled={isPending}
+        >
+          <Save />
+        </Button>
+      </form>
+    </main>
+  );
+}
+
+export async function getServerSideProps({
+  req,
+  params,
+}: GetServerSidePropsContext): Promise<GetServerSidePropsResult<any>> {
+  let id: any = params?.id;
+  if (!id) {
+    return {
+      props: {
+        error: "Bad todo id",
+      },
+    };
+  }
+  id = Number(id);
   if (isNaN(id)) {
     return {
-      notFound: true,
+      props: {
+        error: "Id should be a number",
+      },
     };
   }
 
-  let todo: any;
   try {
-    todo = await getTodo(id);
-  } catch (error) {
-    console.error(error);
+    const todo = await getTodoById(id, req.headers.cookie);
+    return {
+      props: {
+        initialTodo: todo,
+      },
+    };
+  } catch (e: any) {
+    let errorMessage = "";
+    if (e.response) {
+      errorMessage = e.response.data.message;
+    } else if (e.request) {
+      errorMessage =
+        "Server did not responded, we are working on it ...\nWe are sorry for the inconvenience :(";
+    } else {
+      errorMessage =
+        "Internal error occoured, you can see the error in the console";
+      console.log(e);
+    }
+
+    return {
+      props: {
+        initialTodo: null,
+        error: errorMessage,
+      },
+    };
   }
-  return {
-    notFound: true,
-  };
-};
+}
