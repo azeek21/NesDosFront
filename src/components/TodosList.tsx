@@ -4,9 +4,9 @@ import ListItem from "./UI/List/ListItem";
 
 interface ITodosListProops {
   todos: Todo[];
+  style: "card" | "list";
 }
-export default function TodosList({ todos }: ITodosListProops) {
-  const style = useGlobalStore((s) => s.listStyle);
+export default function TodosList({ todos, style }: ITodosListProops) {
   return (
     <div className="w-full">
       <ol

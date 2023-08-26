@@ -17,7 +17,7 @@ const useGlobalStore = create<IGlobalStore>()(
       listStyle: "list",
       setListStyle: (style) => {
         set({ listStyle: style });
-        setUserSettings("todoListViewTyp", style);
+        setUserSettings("listViewStyle", style);
       },
       setUser: (user) => set({ user: user }),
       search: "",

@@ -85,7 +85,6 @@ async function setUserSettings(key: string, value: any) {
     {
       key: key,
       value: value,
-      type: typeof value,
     },
     {
       withCredentials: true,

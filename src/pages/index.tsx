@@ -1,24 +1,19 @@
 import { Inter } from "next/font/google";
 import { useQuery } from "react-query";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import axios from "axios";
-import { getAllTodos, getAllUserSettings } from "@/lib/fetchers";
-import TodosList from "@/components/TodosList";
-import TodosListControls from "@/components/TodoListControls";
+import { getAllUserSettings } from "@/lib/fetchers";
+
 import useGlobalStore from "@/store";
 import { useEffect } from "react";
 // const inter = Inter({ subsets: ["latin"] });
 interface IHome {
-  settings: any;
+  settings: Record<string, any>;
 }
 export default function Home({ settings }: IHome) {
-  const [listStyle, setListStyle] = useGlobalStore((s) => [
-    s.listStyle,
-    s.setListStyle,
-  ]);
-  console.log("list:", listStyle);
+  const setListStyle = useGlobalStore((s) => s.setListStyle);
   useEffect(() => {
-    setListStyle(settings["value"]);
+    console.log("ee: ", settings);
+    setListStyle(settings["listViewStyle"]);
   }, []);
   return <h1>Home page</h1>;
 }
