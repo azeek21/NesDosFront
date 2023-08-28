@@ -88,7 +88,6 @@ export default function TodoById({ initialTodo, error }: ITodoByIdProps) {
         key={`todo-${todo.id}-form`}
         onSubmit={handleSubmit}
         className={isPending ? "opacity-50" : ""}
-        style={{ viewTransitionName: `card-${todo.id}` }}
       >
         <Input
           type="checkbox"
@@ -101,15 +100,17 @@ export default function TodoById({ initialTodo, error }: ITodoByIdProps) {
           type="text"
           value={todo.title}
           onChange={handleChange}
-          className="text-white"
+          className="px-4 py-2 text-white"
           name="title"
+          placeholder="Do good great things..."
         />
         <textarea
           disabled={isPending}
           value={todo.content}
           onChange={handleChange}
           name="content"
-          className="no-scollbar mt-4 h-full w-full bg-transparent focus-within:text-white"
+          placeholder="Level up!"
+          className="no-scollbar mt-4 h-full w-full bg-transparent px-4 py-2 focus-within:text-white"
         />
         <Button
           className="border-green-600 text-green-500"

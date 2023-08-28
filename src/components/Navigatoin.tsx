@@ -1,16 +1,31 @@
 import { useRouter } from "next/router";
 import Button from "./UI/Button";
 import { FormatListBulleted, Dashboard } from "@mui/icons-material";
-import { useState } from "react";
-import useGlobalStore from "@/store";
 import axios from "axios";
 import { flushSync } from "react-dom";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { getUserSettingByKey, setUserSettings } from "@/lib/fetchers";
 
-export default function Navigation() {
-  const [listStyle, setListStyle] = useGlobalStore((state) => [
-    state.listStyle,
-    state.setListStyle,
-  ]);
+interface InavigationProps {
+  initialStyle: "card" | "list";
+}
+
+export default function Navigation({ initialStyle }: InavigationProps) {
+  const queryClient = useQueryClient();
+  let {
+    data: listStyle,
+    isLoading,
+    isError,
+  } = useQuery(
+    ["listStyle"],
+    () => {
+      return getUserSettingByKey("listViewStyle");
+    },
+    {
+      initialData: initialStyle,
+    },
+  );
+
   let route = useRouter();
   async function logOut() {
     const res = await axios.post(
@@ -23,29 +38,23 @@ export default function Navigation() {
     }
   }
 
-  function changeViewStyle(style: "card" | "list") {
-    if (style == listStyle) {
-      return;
-    }
-    if (document?.startViewTransition) {
-      document.startViewTransition(() => {
-        flushSync(() => {
-          setListStyle(style);
-        });
+  const mutate = useMutation({
+    mutationFn: async (style: "card" | "list") => {
+      if (style == listStyle) {
+        return;
+      }
+      queryClient.setQueryData("listStyle", () => {
+        return style;
       });
-    } else {
-      setListStyle(style);
-    }
-  }
+      return setUserSettings("listViewStyle", style);
+    },
+  });
 
   return (
     <nav className="ml-4 flex list-none items-center gap-4 text-2xl">
       <li>
         <div className="flex items-center rounded-md border border-neutral-600 py-1 text-base">
-          <Button
-            className="border-none"
-            onClick={() => changeViewStyle("list")}
-          >
+          <Button className="border-none" onClick={() => mutate.mutate("list")}>
             <FormatListBulleted
               color={listStyle === "list" ? "primary" : undefined}
             />
@@ -53,7 +62,7 @@ export default function Navigation() {
           <Button
             className="border-none"
             onClick={() => {
-              changeViewStyle("card");
+              mutate.mutate("card");
             }}
           >
             <Dashboard color={listStyle === "card" ? "primary" : undefined} />

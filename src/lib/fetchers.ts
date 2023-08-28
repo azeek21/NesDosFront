@@ -1,3 +1,4 @@
+import TodoById from "@/pages/todos/[id]";
 import axios from "axios";
 import { IncomingHttpHeaders } from "http";
 
@@ -65,7 +66,7 @@ async function getAllUserSettings(cookies: IncomingHttpHeaders["cookie"]) {
 
 async function getUserSettingByKey(
   key: string,
-  cookies: IncomingHttpHeaders["cookie"],
+  cookies?: IncomingHttpHeaders["cookie"],
 ) {
   const res = await axios.get(
     process.env.NEXT_PUBLIC_BASE_URL + `settings/${key}`,
@@ -76,7 +77,7 @@ async function getUserSettingByKey(
       },
     },
   );
-  return res.data;
+  return res.data[key];
 }
 
 async function setUserSettings(key: string, value: any) {
@@ -92,6 +93,17 @@ async function setUserSettings(key: string, value: any) {
   );
 }
 
+async function addTodo(params: Omit<Todo, "id">): Promise<Todo> {
+  const res = await axios.post(
+    process.env.NEXT_PUBLIC_BASE_URL + "todos",
+    params,
+    {
+      withCredentials: true,
+    },
+  );
+  return res.data;
+}
+
 export {
   getTodoById,
   getAllTodos,
@@ -99,4 +111,5 @@ export {
   getAllUserSettings,
   getUserSettingByKey,
   setUserSettings,
+  addTodo,
 };

@@ -41,7 +41,6 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
     : "text-inherit";
   return (
     <ListItem
-      style={{ viewTransitionName: `card-${data.id}` }}
       type={style}
       className={`${color} ${
         style == "card" ? "flex flex-col overflow-hidden" : "py-4"
@@ -53,14 +52,10 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
           checked={data.done}
           readOnly
           onChange={toggleDone}
-          style={{
-            viewTransitionName: `card-${data.id}-checkbox`,
-          }}
           className="mr-1 focus:shadow-md focus:shadow-blue-500"
         />
         <Link href={`/todos/${data.id}`}>
           <h1
-            style={{ viewTransitionName: `card-${data.id}-title` }}
             className={`${
               style == "card"
                 ? "w-80 overflow-hidden text-ellipsis whitespace-nowrap"
@@ -73,10 +68,7 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
 
         {style == "list" && (
           // tags
-          <div
-            className="ml-6 flex gap-2"
-            style={{ viewTransitionName: `card-${data.id}-tags` }}
-          >
+          <div className="ml-6 flex gap-2">
             <Tag>Tag1 </Tag>
             <Tag>Tag2</Tag>
           </div>
@@ -88,16 +80,11 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
           style == "card" ? "before:h-1/3" : "before:h-1/5"
         }`}
       >
-        <p style={{ viewTransitionName: `card-${data.id}-content` }}>
-          {data.content}
-        </p>
+        <p>{data.content}</p>
       </div>
       {style == "card" && (
         <div className="mt-auto flex items-center justify-end gap-4 pt-2">
-          <div
-            className="no-scrollbar mr-auto flex w-full gap-2 overflow-x-auto"
-            style={{ viewTransitionName: `card-${data.id}-tags` }}
-          >
+          <div className="no-scrollbar mr-auto flex w-full gap-2 overflow-x-auto">
             <Tag>Tag1 </Tag>
             <Tag>Tag1 </Tag>
             <Tag>Tag2</Tag>
@@ -128,7 +115,7 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
 //   </div>
 //   {/* actions */}
 //   <div className="ml-auto">
-//     <Input checked={todo.done} type="checkbox" />
+//     <Inpudt checked={todo.done} type="checkbox" />
 //   </div>
 // </div>
 // <div className={`text-neutral-200 text-opacity-70`}>
