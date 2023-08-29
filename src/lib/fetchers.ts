@@ -104,6 +104,22 @@ async function addTodo(params: Omit<Todo, "id">): Promise<Todo> {
   return res.data;
 }
 
+async function deleteTodo(id: number | Todo) {
+  let _id: number;
+  if (typeof id == "number") {
+    _id = id;
+  } else {
+    _id = id.id;
+  }
+  const res = await axios.delete(
+    process.env.NEXT_PUBLIC_BASE_URL + `todos/${_id}`,
+    {
+      withCredentials: true,
+    },
+  );
+  return res.data;
+}
+
 export {
   getTodoById,
   getAllTodos,
@@ -112,4 +128,5 @@ export {
   getUserSettingByKey,
   setUserSettings,
   addTodo,
+  deleteTodo,
 };

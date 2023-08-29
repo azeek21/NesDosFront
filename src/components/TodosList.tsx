@@ -1,12 +1,16 @@
 import useGlobalStore from "@/store";
 import TodosListItem from "./TodosListItem";
 import ListItem from "./UI/List/ListItem";
+import { useRouter } from "next/router";
+import { getListStyle } from "@/utils/utils";
 
 interface ITodosListProops {
   todos: Todo[];
-  style: "card" | "list";
 }
-export default function TodosList({ todos, style }: ITodosListProops) {
+export default function TodosList({ todos }: ITodosListProops) {
+  const router = useRouter();
+  let style = getListStyle(router.query.style);
+
   return (
     <div className="w-full">
       <ol

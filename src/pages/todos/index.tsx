@@ -21,10 +21,9 @@ import { useRouter } from "next/router";
 interface IHomeProps {
   todos: Todo[];
   error?: string;
-  listViewStyle: "card" | "list";
 }
 
-export default function Todos({ todos, error, listViewStyle }: IHomeProps) {
+export default function Todos({ todos, error }: IHomeProps) {
   const router = useRouter();
   const { data, isError, isLoading } = useQuery(
     ["todos"],
@@ -39,26 +38,15 @@ export default function Todos({ todos, error, listViewStyle }: IHomeProps) {
     },
   );
 
-  const { data: style } = useQuery(
-    ["listStyle"],
-    () => {
-      return getUserSettingByKey("listViewStyle");
-    },
-    {
-      initialData: listViewStyle,
-    },
-  );
-
   if (error) {
     return <h1 className="text-red-500">{error}</h1>;
   }
 
   return (
     <>
-      <Header style={style} />
       <main className="m-auto mt-4 flex max-w-screen-xl flex-wrap items-start  justify-center gap-4">
         <TodosListControls />
-        {data && <TodosList todos={data} style={style} />}
+        {data && <TodosList todos={data} />}
         <Button
           className="fixed bottom-8 right-8 shadow-lg shadow-neutral-300"
           onClick={async () => {
@@ -80,12 +68,10 @@ export async function getServerSideProps({
     const todos = await getAllTodos({
       cookies: req.headers.cookie,
     });
-    const settings = await getAllUserSettings(req.headers.cookie);
 
     return {
       props: {
         todos: todos,
-        listViewStyle: settings["listViewStyle"],
       },
     };
   } catch (e: any) {

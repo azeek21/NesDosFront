@@ -8,5 +8,10 @@ interface ILoayoutProps extends PropsWithChildren {
   user?: User | null;
 }
 export default function Layout({ children }: ILoayoutProps) {
-  return <>{children}</>;
+  return (
+    <>
+      <Header />
+      {children}
+    </>
+  );
 }

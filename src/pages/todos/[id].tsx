@@ -87,37 +87,49 @@ export default function TodoById({ initialTodo, error }: ITodoByIdProps) {
       <form
         key={`todo-${todo.id}-form`}
         onSubmit={handleSubmit}
-        className={isPending ? "opacity-50" : ""}
+        className={`flex flex-col rounded-2xl border border-neutral-400 p-4 ${
+          isPending ? "opacity-50" : ""
+        }`}
       >
-        <Input
-          type="checkbox"
-          checked={todo.done}
-          name="done"
-          onChange={handleChange}
-        />
-        <Input
-          disabled={isPending}
-          type="text"
-          value={todo.title}
-          onChange={handleChange}
-          className="px-4 py-2 text-white"
-          name="title"
-          placeholder="Do good great things..."
-        />
+        <div className="flex items-center ">
+          <Input
+            type="checkbox"
+            checked={todo.done}
+            name="done"
+            onChange={handleChange}
+            disabled={isPending}
+          />
+          <Input
+            disabled={isPending}
+            type="text"
+            value={todo.title}
+            onChange={handleChange}
+            className="w-full rounded-none border-l-0 border-r-0 border-t-0 px-4 py-2 text-xl text-white"
+            name="title"
+            placeholder="Do good great things..."
+          />
+        </div>
         <textarea
           disabled={isPending}
           value={todo.content}
           onChange={handleChange}
           name="content"
+          rows={15}
           placeholder="Level up!"
-          className="no-scollbar mt-4 h-full w-full bg-transparent px-4 py-2 focus-within:text-white"
+          className="no-scollbar h-full w-full border-none bg-transparent text-lg outline-none focus-within:text-white"
         />
-        <Button
-          className="border-green-600 text-green-500"
-          disabled={isPending}
-        >
-          <Save />
-        </Button>
+        <div className="flex items-center pt-4">
+          <Input
+            placeholder="Tags"
+            className="w-full border-none py-1 text-base"
+          />
+          <Button
+            className="border-green-600 text-green-500"
+            disabled={isPending}
+          >
+            <Save />
+          </Button>
+        </div>
       </form>
     </main>
   );

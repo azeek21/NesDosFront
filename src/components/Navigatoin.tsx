@@ -5,26 +5,13 @@ import axios from "axios";
 import { flushSync } from "react-dom";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getUserSettingByKey, setUserSettings } from "@/lib/fetchers";
+import { getListStyle } from "@/utils/utils";
 
-interface InavigationProps {
-  initialStyle: "card" | "list";
-}
+interface InavigationProps {}
 
-export default function Navigation({ initialStyle }: InavigationProps) {
-  const queryClient = useQueryClient();
-  let {
-    data: listStyle,
-    isLoading,
-    isError,
-  } = useQuery(
-    ["listStyle"],
-    () => {
-      return getUserSettingByKey("listViewStyle");
-    },
-    {
-      initialData: initialStyle,
-    },
-  );
+export default function Navigation({}: InavigationProps) {
+  const router = useRouter();
+  const style = getListStyle(router.query.style);
 
   let route = useRouter();
   async function logOut() {
@@ -38,34 +25,33 @@ export default function Navigation({ initialStyle }: InavigationProps) {
     }
   }
 
-  const mutate = useMutation({
-    mutationFn: async (style: "card" | "list") => {
-      if (style == listStyle) {
-        return;
-      }
-      queryClient.setQueryData("listStyle", () => {
-        return style;
-      });
-      return setUserSettings("listViewStyle", style);
-    },
-  });
+  function handleListStyleChange(newStyle: "list" | "card") {
+    router.replace({
+      query: { ...router.query, style: newStyle },
+    });
+  }
 
   return (
     <nav className="ml-4 flex list-none items-center gap-4 text-2xl">
       <li>
         <div className="flex items-center rounded-md border border-neutral-600 py-1 text-base">
-          <Button className="border-none" onClick={() => mutate.mutate("list")}>
+          <Button
+            className="border-none"
+            onClick={() => {
+              handleListStyleChange("list");
+            }}
+          >
             <FormatListBulleted
-              color={listStyle === "list" ? "primary" : undefined}
+              color={style === "list" ? "primary" : undefined}
             />
           </Button>
           <Button
             className="border-none"
             onClick={() => {
-              mutate.mutate("card");
+              handleListStyleChange("card");
             }}
           >
-            <Dashboard color={listStyle === "card" ? "primary" : undefined} />
+            <Dashboard color={style === "card" ? "primary" : undefined} />
           </Button>
         </div>
       </li>

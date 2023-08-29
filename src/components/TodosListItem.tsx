@@ -4,12 +4,14 @@ import Input from "./UI/Inpute";
 import ListItem from "./UI/List/ListItem";
 import { Delete, EditNote } from "@mui/icons-material";
 import Link from "./UI/Link";
-import { useQuery, useQueryClient } from "react-query";
-import { getTodoById, updateTodo } from "@/lib/fetchers";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { deleteTodo, getTodoById, updateTodo } from "@/lib/fetchers";
+
 interface ITodosListItem {
   style: "list" | "card";
   todo: Todo;
 }
+
 export default function TodosListItem({ todo, style }: ITodosListItem) {
   const queryClinet = useQueryClient();
   const { data, isLoading, error } = useQuery(
@@ -21,6 +23,19 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
       initialData: todo,
     },
   );
+
+  const mutator = useMutation({
+    mutationFn: async () => {
+      return deleteTodo(todo.id);
+    },
+    onSuccess: () => {
+      console.log("invalidating...");
+      queryClinet.setQueryData("todos", (todos: any) => {
+        console.log("wee");
+        return todos.filter((t: Todo) => t.id != todo.id);
+      });
+    },
+  });
 
   if (!data || error) {
     console.log("ERROR: ", error);
@@ -36,7 +51,10 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
     }
   }
 
-  const color = data.done
+  const isPending = isLoading || mutator.isLoading;
+  const color = isPending
+    ? "accent-neutral-500 border-neutral-500 !text-neutral-500"
+    : data.done
     ? "!text-green-500 accent-green-500 border-green-800"
     : "text-inherit";
   return (
@@ -52,6 +70,7 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
           checked={data.done}
           readOnly
           onChange={toggleDone}
+          disabled={isPending}
           className="mr-1 focus:shadow-md focus:shadow-blue-500"
         />
         <Link href={`/todos/${data.id}`}>
@@ -68,10 +87,21 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
 
         {style == "list" && (
           // tags
-          <div className="ml-6 flex gap-2">
-            <Tag>Tag1 </Tag>
-            <Tag>Tag2</Tag>
-          </div>
+          <>
+            <div className="ml-6 flex gap-2">
+              <Tag>Tag1 </Tag>
+              <Tag>Tag2</Tag>
+            </div>
+            <Button
+              disabled={isPending}
+              className="ml-auto border-red-600 text-xs text-red-600"
+              onClick={() => {
+                mutator.mutate();
+              }}
+            >
+              <Delete />
+            </Button>
+          </>
         )}
       </div>
       {style == "card" && <hr className=" border-neutral-500" />}
@@ -91,10 +121,13 @@ export default function TodosListItem({ todo, style }: ITodosListItem) {
           </div>
 
           <div className="flex gap-1 text-xs opacity-70">
-            <Button>
-              <EditNote />
-            </Button>
-            <Button className="border-red-600 text-xs text-red-600">
+            <Button
+              disabled={isPending}
+              className="border-red-600 text-xs text-red-600"
+              onClick={() => {
+                mutator.mutate();
+              }}
+            >
               <Delete />
             </Button>
           </div>
